@@ -1,54 +1,50 @@
- const apiKey = "0df20f921c54d42b114839063efcabb6";
+const apiKey = "0df20f921c54d42b114839063efcabb6";
 
-const main = document.getElementById('main');
-const form = document.getElementById('form');
-const search = document.getElementById('search');
-  
-const url = (city)=> `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+const main = document.getElementById("main");
+const form = document.getElementById("form");
+const search = document.getElementById("search");
 
+const url = (city) =>
+  `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
-async function getWeatherByLocation(city){
-     
-         const resp = await fetch(url(city), {
-             origin: "cros" });
-         const respData = await resp.json();
-     
-           addWeatherToPage(respData);
-          
-     }
+async function getWeatherByLocation(city) {
+  try {
+    const resp = await fetch(url(city));
+    const data = await resp.json();
 
-      function addWeatherToPage(data){
-          const temp = Ktoc(data.main.temp);
+    if (data.cod === "404") {
+      main.innerHTML = `<h2>❌ City not found</h2>`;
+      return;
+    }
 
-          const weather = document.createElement('div')
-          weather.classList.add('weather');
+    addWeatherToPage(data);
+  } catch (error) {
+    main.innerHTML = `<h2>⚠️ Error fetching data</h2>`;
+  }
+}
 
-          weather.innerHTML = `
-          <h2><img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" /> ${temp}°C <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" /></h2>
-          <small>${data.weather[0].main}</small>
-          
-          `;
+function addWeatherToPage(data) {
+  const weather = document.createElement("div");
+  weather.classList.add("weather");
 
+  weather.innerHTML = `
+    <h2>
+      <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png">
+      ${Math.round(data.main.temp)}°C
+    </h2>
+    <small>${data.weather[0].main}</small>
+  `;
 
-        //   cleanup 
-          main.innerHTML= "";
-           main.appendChild(weather);
-      };
+  main.innerHTML = "";
+  main.appendChild(weather);
+}
 
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const city = search.value.trim();
 
-     function Ktoc(K){
-         return Math.floor(K - 273.15);
-     }
-
-
-
-     form.addEventListener('submit',(e) =>{
-        e.preventDefault();
-
-        const city = search.value;
-
-        if(city){
-            getWeatherByLocation(city)
-        }
-
-     });
+  if (city) {
+    getWeatherByLocation(city);
+    search.value = "";
+  }
+});
