@@ -12,14 +12,14 @@ async function getWeatherByLocation(city) {
     const resp = await fetch(url(city));
     const data = await resp.json();
 
-    if (data.cod === "404") {
+    if (data.cod === 404) {
       main.innerHTML = `<h2>❌ City not found</h2>`;
       return;
     }
 
     addWeatherToPage(data);
   } catch (error) {
-    main.innerHTML = `<h2>⚠️ Error fetching data</h2>`;
+    main.innerHTML = `<h2>⚠️ Error fetching weather</h2>`;
   }
 }
 
@@ -42,9 +42,5 @@ function addWeatherToPage(data) {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const city = search.value.trim();
-
-  if (city) {
-    getWeatherByLocation(city);
-    search.value = "";
-  }
+  if (city) getWeatherByLocation(city);
 });
